@@ -1,8 +1,7 @@
+node_modules
+.next
 .env
-node_modules/
-dist/
-*.local
-.vercel
-.vercel/
-.vite-source-tags.js
-vercel-nosecret.json
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
