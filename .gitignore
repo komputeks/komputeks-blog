@@ -2,3 +2,7 @@
 node_modules/
 dist/
 *.local
+.vercel
+.vercel/
+.vite-source-tags.js
+vercel-nosecret.json
