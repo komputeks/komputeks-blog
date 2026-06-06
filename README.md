@@ -63,7 +63,8 @@ A modern, full-stack technology blog built with React, TypeScript, Tailwind CSS,
 
 ## 🌐 Production URL
 
-Deployed on Vercel - see deployment panel for URL.
+- **GitHub Repository:** https://github.com/komputeks/komputeks-blog
+- **Production Deployment:** Vercel (see preview panel for live URL)
 
 ## 📝 License
 
