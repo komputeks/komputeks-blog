@@ -7,6 +7,8 @@
     "NEXT_PUBLIC_SUPABASE_URL": "https://wjyeqokhmzefvtdimtiy.supabase.co",
     "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_QmhffrmWlDLcyb2mK6YAZQ_x6_5Zh2I",
     "NEXT_PUBLIC_GOOGLE_CLIENT_ID": "741643944083-79hjc3f6l2s0tn192btq2kdli1uhu1ot.apps.googleusercontent.com",
-    "NEXT_PUBLIC_GOOGLE_AUTH_PROXY": "https://oauth.designarena.dev/callback"
+    "NEXT_PUBLIC_GOOGLE_AUTH_PROXY": "https://oauth.designarena.dev/callback",
+    "FULLSTACK_PROJECT_REF": "wjyeqokhmzefvtdimtiy",
+    "FULLSTACK_RESTORE_API_URL": "https://designarena.ai/api/fullstack-restore"
   }
 }

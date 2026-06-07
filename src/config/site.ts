@@ -3,7 +3,7 @@ export const siteConfig = {
   name: 'Komputeks Blog',
   shortName: 'Komputeks',
   description: 'Modern full-stack technology blog covering the latest in tech, programming, and digital innovation.',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://komputeks.blog',
+  url: process.env.NEXT_PUBLIC_SITE_URL || 'https://komputeks-blog.vercel.app',
   ogImage: '/og-image.png',
   links: {
     github: 'https://github.com/komputeks/komputeks-blog',
