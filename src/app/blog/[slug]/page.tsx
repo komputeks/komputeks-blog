@@ -1,47 +1,74 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Calendar, Clock, User, Eye, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
-import { formatDate, getReadingTime } from '@/lib/utils';
+import { Calendar, Clock, User, Eye, ChevronLeft, ChevronRight, ArrowLeft, Tag } from 'lucide-react';
+import { createServerClient } from '@/lib/supabase';
+import { formatDate, getReadingTime, formatNumber } from '@/lib/utils';
 import CommentSection from '@/components/blog/CommentSection';
 
-type Props = {
+interface Props {
   params: Promise<{ slug: string }>;
-};
+}
 
 async function getPost(slug: string) {
-  try {
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/posts?slug=${slug}&status=published`, { 
-      cache: 'no-store',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.data?.[0] || null;
-  } catch {
+  const supabase = createServerClient();
+  
+  const { data, error } = await supabase
+    .from('komputeks_posts')
+    .select(`
+      *,
+      category:komputeks_categories(id, name, slug),
+      author:komputeks_users(id, name, email, bio),
+      tags:komputeks_post_tags(
+        tag:komputeks_tags(id, name, slug)
+      )
+    `)
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .single();
+
+  if (error || !data) {
     return null;
   }
+
+  // Increment view count
+  supabase
+    .from('komputeks_posts')
+    .update({ views: (data.views || 0) + 1 })
+    .eq('id', data.id)
+    .then(() => {});
+
+  return {
+    ...data,
+    tags: data.tags?.map((t: any) => t.tag).filter(Boolean) || [],
+  };
 }
 
 async function getAdjacentPosts(currentId: string, categoryId?: string) {
-  try {
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'http://localhost:3000';
-    const params = new URLSearchParams({ current_id: currentId });
-    if (categoryId) params.set('category_id', categoryId);
+  const supabase = createServerClient();
+  
+  // Get previous post (older)
+  const { data: prevPosts } = await supabase
+    .from('komputeks_posts')
+    .select('id, title, slug')
+    .eq('status', 'published')
+    .lt('id', currentId)
+    .order('created_at', { ascending: false })
+    .limit(1);
 
-    const res = await fetch(`${baseUrl}/api/adjacent-posts?${params.toString()}`, { 
-      cache: 'no-store',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    return res.json();
-  } catch {
-    return { prev: null, next: null };
-  }
+  // Get next post (newer)
+  const { data: nextPosts } = await supabase
+    .from('komputeks_posts')
+    .select('id, title, slug')
+    .eq('status', 'published')
+    .gt('id', currentId)
+    .order('created_at', { ascending: true })
+    .limit(1);
+
+  return {
+    prev: prevPosts?.[0] || null,
+    next: nextPosts?.[0] || null,
+  };
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -65,6 +92,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
   };
 }
+
+export const revalidate = 60; // Revalidate every 60 seconds
 
 export default async function PostPage({ params }: Props) {
   const { slug } = await params;
@@ -92,17 +121,17 @@ export default async function PostPage({ params }: Props) {
       <header className="mb-8">
         <div className="flex flex-wrap items-center gap-2 mb-4">
           {post.category && (
-            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded">
+            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
               {post.category.name}
             </span>
           )}
           {post.is_breaking && (
-            <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded">
+            <span className="px-3 py-1 bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 rounded-full text-sm font-medium">
               Breaking
             </span>
           )}
           {post.is_editors_pick && (
-            <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 rounded">
+            <span className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 rounded-full text-sm font-medium">
               Editor's Pick
             </span>
           )}
@@ -130,7 +159,7 @@ export default async function PostPage({ params }: Props) {
           {post.views > 0 && (
             <span className="flex items-center gap-1">
               <Eye className="w-4 h-4" />
-              {post.views.toLocaleString()} views
+              {formatNumber(post.views)} views
             </span>
           )}
         </div>
@@ -156,13 +185,16 @@ export default async function PostPage({ params }: Props) {
       {/* Tags */}
       {post.tags && post.tags.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Tags</h3>
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3 flex items-center gap-2">
+            <Tag className="w-4 h-4" />
+            Tags
+          </h3>
           <div className="flex flex-wrap gap-2">
             {post.tags.map((tag: any) => (
               <Link
                 key={tag.id}
                 href={`/tag/${tag.slug}`}
-                className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
               >
                 {tag.name}
               </Link>
