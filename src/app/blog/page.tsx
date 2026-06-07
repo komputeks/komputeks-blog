@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { createServerClient } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { formatDate, getReadingTime, formatNumber } from '@/lib/utils';
 import { Calendar, Clock, User, Eye } from 'lucide-react';
 
@@ -11,13 +11,28 @@ export const metadata: Metadata = {
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
+// Create a simple server-side client for reading data
+function getServerClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  return createClient(supabaseUrl, supabaseAnonKey);
+}
+
 async function getPosts() {
-  const supabase = createServerClient();
+  const supabase = getServerClient();
   
   const { data, error } = await supabase
     .from('komputeks_posts')
     .select(`
-      *,
+      id,
+      title,
+      slug,
+      excerpt,
+      content,
+      featured_image,
+      views,
+      created_at,
+      published_at,
       category:komputeks_categories(id, name, slug),
       author:komputeks_users(id, name, email)
     `)
@@ -34,11 +49,11 @@ async function getPosts() {
 }
 
 async function getCategories() {
-  const supabase = createServerClient();
+  const supabase = getServerClient();
   
   const { data, error } = await supabase
     .from('komputeks_categories')
-    .select('*')
+    .select('id, name, slug, description')
     .order('name');
 
   if (error) {
