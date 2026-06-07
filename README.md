@@ -1,51 +1,43 @@
 # Komputeks Blog
 
-A modern, full-stack technology blog built with React, TypeScript, Tailwind CSS, and Supabase.
+A modern, full-stack technology blog built with Next.js 16, React 19, TypeScript, Tailwind CSS 4, and Supabase.
 
 ## 🚀 Features
 
+- **Next.js 16.2.7** - Latest App Router with Server Components
+- **React 19** - Latest React features including Actions
+- **TypeScript 5.8** - Strict mode enabled for type safety
+- **Tailwind CSS 4** - Modern utility-first styling
+- **Supabase** - PostgreSQL database, Auth, and Storage
 - **Dark/Light Mode** - System preference detection with manual toggle
-- **Responsive Design** - Mobile-first approach, works on all devices
-- **Article System** - Full article pages with comments, related posts, and navigation
-- **Categories & Tags** - Hierarchical categories with subcategories, tag-based filtering
-- **Search** - Full-text search with paginated results
-- **Breaking News** - Animated ticker for breaking news articles
-- **Editor's Picks** - Curated content highlighting
-- **Admin Dashboard** - Complete CMS for managing posts, categories, tags, users, and comments
-- **Authentication** - Email/password and Google sign-in via Supabase Auth
-- **Real Database** - Supabase PostgreSQL with real-time capabilities
-
-## 🛠 Tech Stack
-
-- **Frontend:** React 19 + TypeScript + Tailwind CSS 4
-- **Backend:** Vercel Serverless Functions
-- **Database:** Supabase (PostgreSQL)
-- **Auth:** Supabase Auth (Email + Google OAuth)
-- **Storage:** Supabase Storage
-- **Deployment:** Vercel
-- **Animations:** Framer Motion
-- **Icons:** Lucide React
+- **PWA Support** - Installable with offline capabilities
+- **SEO Optimized** - Meta tags, Open Graph, and structured data
 
 ## 📁 Project Structure
 
 ```
 ├── api/                  # Vercel serverless API routes
-│   ├── posts.js         # Posts CRUD
-│   ├── categories.js    # Categories CRUD
-│   ├── tags.js          # Tags CRUD
-│   ├── comments.js      # Comments CRUD
-│   ├── users.js         # Users CRUD
-│   ├── upload.js        # File upload
-│   ├── tag-posts.js     # Posts by tag
-│   └── adjacent-posts.js # Prev/Next post navigation
 ├── src/
+│   ├── app/             # Next.js App Router pages
 │   ├── components/      # Reusable UI components
-│   ├── contexts/        # React contexts (Auth, Theme)
+│   ├── providers/       # React context providers
 │   ├── lib/             # Utility functions
-│   └── pages/           # Page components
+│   ├── hooks/           # Custom React hooks
+│   ├── types/           # TypeScript type definitions
+│   └── schemas/         # Zod validation schemas
 ├── public/              # Static assets
 └── vercel.json          # Vercel configuration
 ```
+
+## 🛠 Tech Stack
+
+- **Frontend:** Next.js 16 + React 19 + TypeScript 5.8 + Tailwind CSS 4
+- **Backend:** Vercel Serverless Functions
+- **Database:** Supabase PostgreSQL
+- **Auth:** Supabase Auth (Email + Google OAuth)
+- **Storage:** Supabase Storage
+- **Animations:** Framer Motion
+- **Icons:** Lucide React
 
 ## 🗄 Database Schema
 
@@ -61,15 +53,10 @@ A modern, full-stack technology blog built with React, TypeScript, Tailwind CSS,
 - **Email:** admin@komputeks.com
 - **Password:** admin123
 
-## 🌐 Production URL
-
-- **GitHub Repository:** https://github.com/komputeks/komputeks-blog
-- **Production Deployment:** Vercel (see preview panel for live URL)
-
 ## 📝 License
 
 MIT
--e 
-## Production URL
-https://repo-seven-alpha.vercel.app
 
+## Production URL
+
+Deployed on Vercel - see preview panel for live URL.

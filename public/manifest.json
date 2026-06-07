@@ -1,21 +1,41 @@
 {
   "name": "Komputeks Blog",
   "short_name": "Komputeks",
-  "description": "Modern full-stack technology blog",
+  "description": "Modern full-stack technology blog covering software engineering, web development, and emerging technologies.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#0070f3",
+  "orientation": "portrait-primary",
+  "scope": "/",
   "icons": [
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "categories": ["technology", "blog", "news"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Latest Posts",
+      "url": "/blog",
+      "description": "View the latest articles"
+    },
+    {
+      "name": "Search",
+      "url": "/search",
+      "description": "Search articles"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }
