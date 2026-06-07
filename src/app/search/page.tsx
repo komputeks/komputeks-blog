@@ -14,10 +14,19 @@ export const metadata: Metadata = {
 async function searchPosts(query: string, page: number) {
   if (!query) return { data: [], total: 0, total_pages: 0 };
 
+  const baseUrl = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'http://localhost:3000';
+
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/search?q=${encodeURIComponent(query)}&page=${page}&per_page=10`,
-    { cache: 'no-store' }
+    `${baseUrl}/api/search?q=${encodeURIComponent(query)}&page=${page}&per_page=10`,
+    { 
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' }
+    }
   );
+  
+  if (!res.ok) return { data: [], total: 0, total_pages: 0 };
   return res.json();
 }
 
@@ -34,7 +43,6 @@ export default async function SearchPage({ searchParams }: Props) {
     <div className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-8">Search</h1>
 
-      {/* Search Form */}
       <form className="mb-8">
         <div className="relative max-w-xl">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -48,7 +56,6 @@ export default async function SearchPage({ searchParams }: Props) {
         </div>
       </form>
 
-      {/* Results */}
       {query && (
         <p className="text-muted-foreground mb-6">
           {results.total} result{results.total !== 1 ? 's' : ''} for "<span className="font-medium text-foreground">{query}</span>"

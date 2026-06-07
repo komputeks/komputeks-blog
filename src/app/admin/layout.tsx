@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/providers/AuthProvider';
 import { adminNav } from '@/config/site';
-import { LayoutDashboard, FileText, FolderOpen, Tag, Users, MessageSquare, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, FolderOpen, Tag, Users, MessageSquare, Settings, LogOut, Menu, X } from 'lucide-react';
+import { useState } from 'react';
 
 const iconMap: Record<string, React.ElementType> = {
   Dashboard: LayoutDashboard,
@@ -24,6 +25,7 @@ export default function AdminLayout({
 }) {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -45,8 +47,19 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-muted/30">
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 h-16 bg-card border-b flex items-center px-4">
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="p-2 rounded-md hover:bg-accent"
+        >
+          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
+        <span className="ml-4 font-bold text-xl">Admin</span>
+      </div>
+
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r bg-card">
+      <aside className={`fixed left-0 top-0 z-40 h-screen w-64 border-r bg-card transform transition-transform lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex h-16 items-center border-b px-6">
           <Link href="/admin" className="font-bold text-xl">Admin</Link>
         </div>
@@ -58,6 +71,7 @@ export default function AdminLayout({
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    onClick={() => setSidebarOpen(false)}
                     className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium hover:bg-accent transition-colors"
                   >
                     <Icon className="h-4 w-4" />
@@ -79,8 +93,16 @@ export default function AdminLayout({
         </div>
       </aside>
 
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Main content */}
-      <main className="ml-64 p-8">{children}</main>
+      <main className="lg:ml-64 pt-16 lg:pt-0 p-8">{children}</main>
     </div>
   );
 }

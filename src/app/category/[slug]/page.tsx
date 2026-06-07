@@ -13,19 +13,34 @@ export const metadata: Metadata = {
 };
 
 async function getCategory(slug: string) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/categories`,
-    { cache: 'no-store' }
-  );
+  const baseUrl = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'http://localhost:3000';
+  
+  const res = await fetch(`${baseUrl}/api/categories`, { 
+    cache: 'no-store',
+    headers: { 'Content-Type': 'application/json' }
+  });
+  
+  if (!res.ok) return null;
   const categories = await res.json();
   return categories.find((c: any) => c.slug === slug);
 }
 
 async function getPostsByCategory(categoryId: string, page: number) {
+  const baseUrl = process.env.VERCEL_URL 
+    ? `https://${process.env.VERCEL_URL}` 
+    : 'http://localhost:3000';
+  
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/posts?category=${categoryId}&page=${page}&per_page=10&status=published`,
-    { cache: 'no-store' }
+    `${baseUrl}/api/posts?category=${categoryId}&page=${page}&per_page=10&status=published`,
+    { 
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' }
+    }
   );
+  
+  if (!res.ok) return { data: [], total: 0, total_pages: 0 };
   return res.json();
 }
 
@@ -46,7 +61,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      {/* Breadcrumb */}
       <nav className="flex items-center text-sm text-muted-foreground mb-6">
         <Link href="/" className="hover:text-foreground">Home</Link>
         <span className="mx-2">/</span>

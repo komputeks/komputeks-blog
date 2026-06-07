@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Calendar, Clock, User, Eye, ChevronLeft, ChevronRight, ArrowLeft, Tag } from 'lucide-react';
-import { formatDate, getReadingTime, formatNumber } from '@/lib/utils';
+import { Calendar, Clock, User, Eye, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { formatDate, getReadingTime } from '@/lib/utils';
 import CommentSection from '@/components/blog/CommentSection';
 
 type Props = {
@@ -13,8 +13,11 @@ async function getPost(slug: string) {
   try {
     const baseUrl = process.env.VERCEL_URL 
       ? `https://${process.env.VERCEL_URL}` 
-      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/posts?slug=${slug}&status=published`, { cache: 'no-store' });
+      : 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/posts?slug=${slug}&status=published`, { 
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' }
+    });
     if (!res.ok) return null;
     const data = await res.json();
     return data.data?.[0] || null;
@@ -27,10 +30,14 @@ async function getAdjacentPosts(currentId: string, categoryId?: string) {
   try {
     const baseUrl = process.env.VERCEL_URL 
       ? `https://${process.env.VERCEL_URL}` 
-      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+      : 'http://localhost:3000';
     const params = new URLSearchParams({ current_id: currentId });
     if (categoryId) params.set('category_id', categoryId);
-    const res = await fetch(`${baseUrl}/api/adjacent-posts?${params.toString()}`, { cache: 'no-store' });
+
+    const res = await fetch(`${baseUrl}/api/adjacent-posts?${params.toString()}`, { 
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' }
+    });
     return res.json();
   } catch {
     return { prev: null, next: null };
@@ -75,7 +82,7 @@ export default async function PostPage({ params }: Props) {
       {/* Back button */}
       <Link
         href="/blog"
-        className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-8"
+        className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white mb-8"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Blog
@@ -85,30 +92,27 @@ export default async function PostPage({ params }: Props) {
       <header className="mb-8">
         <div className="flex flex-wrap items-center gap-2 mb-4">
           {post.category && (
-            <Link
-              href={`/category/${post.category.slug}`}
-              className="px-3 py-1 text-xs font-medium bg-primary text-primary-foreground rounded-full"
-            >
+            <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 rounded">
               {post.category.name}
-            </Link>
+            </span>
           )}
           {post.is_breaking && (
-            <span className="px-3 py-1 text-xs font-medium bg-red-500 text-white rounded-full">
+            <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 rounded">
               Breaking
             </span>
           )}
           {post.is_editors_pick && (
-            <span className="px-3 py-1 text-xs font-medium bg-yellow-500 text-white rounded-full">
+            <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 rounded">
               Editor's Pick
             </span>
           )}
         </div>
 
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
           {post.title}
         </h1>
 
-        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
           {post.author && (
             <span className="flex items-center gap-1">
               <User className="w-4 h-4" />
@@ -126,7 +130,7 @@ export default async function PostPage({ params }: Props) {
           {post.views > 0 && (
             <span className="flex items-center gap-1">
               <Eye className="w-4 h-4" />
-              {formatNumber(post.views)} views
+              {post.views.toLocaleString()} views
             </span>
           )}
         </div>
@@ -151,30 +155,32 @@ export default async function PostPage({ params }: Props) {
 
       {/* Tags */}
       {post.tags && post.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-8">
-          <Tag className="h-4 w-4 text-muted-foreground" />
-          {post.tags.map((tag: any) => (
-            <Link
-              key={tag.id}
-              href={`/tag/${tag.slug}`}
-              className="px-3 py-1 text-sm bg-muted rounded-full hover:bg-accent transition-colors"
-            >
-              {tag.name}
-            </Link>
-          ))}
+        <div className="mb-8">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Tags</h3>
+          <div className="flex flex-wrap gap-2">
+            {post.tags.map((tag: any) => (
+              <Link
+                key={tag.id}
+                href={`/tag/${tag.slug}`}
+                className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              >
+                {tag.name}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="flex justify-between items-center py-8 border-t">
+      <nav className="flex justify-between items-center py-8 border-t border-gray-200 dark:border-gray-700">
         {adjacent.prev ? (
           <Link
             href={`/blog/${adjacent.prev.slug}`}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           >
             <ChevronLeft className="w-4 h-4" />
             <div>
-              <div className="text-xs text-muted-foreground">Previous</div>
+              <div className="text-xs text-gray-400">Previous</div>
               <div className="font-medium line-clamp-1">{adjacent.prev.title}</div>
             </div>
           </Link>
@@ -185,10 +191,10 @@ export default async function PostPage({ params }: Props) {
         {adjacent.next ? (
           <Link
             href={`/blog/${adjacent.next.slug}`}
-            className="flex items-center gap-2 text-muted-foreground hover:text-foreground text-right"
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white text-right"
           >
             <div>
-              <div className="text-xs text-muted-foreground">Next</div>
+              <div className="text-xs text-gray-400">Next</div>
               <div className="font-medium line-clamp-1">{adjacent.next.title}</div>
             </div>
             <ChevronRight className="w-4 h-4" />
